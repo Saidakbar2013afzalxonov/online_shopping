@@ -30,9 +30,11 @@ async def register(msg:Message,state:FSMContext):
     await state.set_state(RegisterState.phone_number)
 
 @router.message(RegisterState.phone_number)
-async def register(msg:Message,state:FSMContext):
+async def register(msg:Message,state:FSMContext,db):
     await state.update_data(phone_number=msg.text)
     
     data=await state.get_data()
     await msg.answer(text=f" Malumotlaringiz: \nIsmingiz: {data["name"]}\nFamilyangiz: {data["surename"]}\nYoshingiz: {data["age"]}\nTelefon raqamingiz: {data["phone_number"]}")
+    await db.add_user(int(msg.from_user.id),data["name"],data["surename"],data["age"],data["phone_number"])
+    await msg.answer("Malumotlarigiz muvaffaqiyatli saqlandi")
     await state.clear()
